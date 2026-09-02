@@ -9,12 +9,17 @@
 
 ```
 YouTube 开黑视频 → yt-dlp 采集 → ffmpeg 预清洗 → FunASR+SenseVoice → 文字
-   (职业战队队内语音)  (M1)         (M2 清洗)        (M2 ASR, 28x实时)    ✅打通
+   (目标:普通玩家多人开黑)  (M1)       (M2 清洗)        (M2 ASR, 28x实时)   ✅打通
 ```
 
-- 数据：7 个 Valorant 开黑视频 / 4.9 小时音频 / 清洗后 539MB（16k单声道）
+- 管线已验证：7 个 Valorant 开黑视频 / 4.9 小时音频 / 清洗后 539MB（16k单声道）
 - ASR：CPU 28x 实时转写，内存峰值 3.5GB / CPU 利用 1.5核（**瓶颈是 CPU 不是内存**）
-- 转写内容验证为真实战队战术语音（smokes / tap and go through / hit for 80 等）
+- 目标语料是**普通玩家的真实多人开黑原声**（排位/组队/业余 scrim），
+  转写验证为真实战术语音（"smokes / tap and go through / hit for 80" 等）；
+  赛事转播、职业选手 POV、讲解/剪辑均按 [数据范围与分类标准.md](数据范围与分类标准.md) 排除。
+
+> ⚠️ **技术路线已更新（2026-08-24 起，08-29 再修）**：旧版"Phase 1 只做 S2TT / TTS 造音对 / LLM 造中英配对台账"已推翻，也**不是**以职业战队 / 赛事内容为主要数据。
+> 新方向：**直接拿纯英+纯中普通玩家开黑视频音频、微调现成多模态端到端底座**，学到 FPS 黑话窄域；**LLM 只做辅助（打标/难例/评估），不做双语配对监督**。详见 [项目计划.md](项目计划.md) 第二、三节。
 
 > ⚠️ **技术路线已更新（2026-08-24 起，08-29 再修）**：旧版"Phase 1 只做 S2TT / TTS 造音对 / LLM 造中英配对台账"已推翻。
 > 新方向：**直接拿纯英+纯中开黑视频音频、微调现成多模态端到端底座**，学到 FPS 黑话窄域；**LLM 只做辅助（打标/难例/评估），不做双语配对监督**。详见 [项目计划.md](项目计划.md) 第二、三节。
@@ -29,6 +34,11 @@ YouTube 开黑视频 → yt-dlp 采集 → ffmpeg 预清洗 → FunASR+SenseVoic
 | **[M1-YouTube采集方案.md](M1-YouTube采集方案.md)** | 采集实战：搜索词、yt-dlp 命令、服务器部署、踩坑修复 |
 | **[M2-音频清洗.md](M2-音频清洗.md)** | 预清洗：48k→16k 单声道，ffmpeg 滤镜链，三个踩坑记录 |
 | **[ASR选型与部署.md](ASR选型与部署.md)** | ASR 决策：为什么选 SenseVoice 而非 Whisper，部署与验证结果 |
+| **[数据范围与分类标准.md](数据范围与分类标准.md)** | 产品范围、Phase 1 数据边界、视频分类与人工复核标准 |
+| **[master_loop.md](master_loop.md)** | 可恢复的采集→清洗→ASR 调度骨架与运行方式 |
+| **[classify_discovery.py](classify_discovery.py)** | 按范围标准对 yt-dlp 探测结果做 accept/review/reject 初筛 |
+| **[dedupe.py](dedupe.py)** | 探测批次按平台/视频 ID 去重，并提供下载后 SHA-256 指纹工具 |
+| **[v2v-master-loop.service.example](v2v-master-loop.service.example)** | 服务器 systemd 持久运行模板 |
 | **vox.md** | ⚠️ 已废弃：早期产品/厂商想法（gemini/gpt/qwen）|
 | **调研与考察/** | 早期调研：厂商方向、范围锁定、数据获取、网络资料（部分已废弃）|
 

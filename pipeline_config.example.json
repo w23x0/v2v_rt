@@ -1,0 +1,63 @@
+{
+  "state_file": "pipeline_state.json",
+  "log_file": "pipeline.log",
+  "data_root": "~/v2v-data",
+  "poll_seconds": 1800,
+  "max_attempts": 3,
+  "jobs": [
+    {
+      "id": "valorant-youtube-comms-001",
+      "query": "valorant ranked full match comms",
+      "game": "valorant",
+      "platform": "youtube",
+      "format": "ranked",
+      "limit": 20,
+      "approved": false
+    },
+    {
+      "id": "valorant-youtube-scrim-001",
+      "query": "valorant scrim team voice full game",
+      "game": "valorant",
+      "platform": "youtube",
+      "format": "scrim",
+      "limit": 20,
+      "approved": false
+    }
+  ],
+  "commands": {
+    "discover": [
+      "bash",
+      "-lc",
+      "yt-dlp --js-runtimes deno --flat-playlist -j 'ytsearch{limit}:{query}' > '{data_root}/discovery/{job_id}.jsonl'"
+    ],
+    "classify": [
+      "python3",
+      "classify_discovery.py",
+      "--input",
+      "{discovery_file}",
+      "--output",
+      "{classification_file}",
+      "--game",
+      "{game}",
+      "--platform",
+      "{platform}",
+      "--job-id",
+      "{job_id}"
+    ],
+    "download": [
+      "bash",
+      "-lc",
+      "~/v2v-scripts/youtube_collect.sh '{query}' {limit} '{game}'"
+    ],
+    "clean": [
+      "bash",
+      "-lc",
+      "~/v2v-scripts/preprocess_audio.sh '{game}'"
+    ],
+    "asr": [
+      "bash",
+      "-lc",
+      "python ~/v2v-scripts/transcribe_en_mp.py"
+    ]
+  }
+}

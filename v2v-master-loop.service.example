@@ -1,0 +1,18 @@
+[Unit]
+Description=V2V resumable collection and transcription loop
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__V2V_USER__
+WorkingDirectory=__V2V_REPO__
+ExecStart=/usr/bin/python3 __V2V_REPO__/master_loop.py --config __V2V_REPO__/pipeline_config.json
+Restart=always
+RestartSec=30
+KillSignal=SIGINT
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,2 +1,12 @@
 .obsidian/
+__pycache__/
+*.pyc
+pipeline_config.json
+pipeline_config.overnight.json
+pipeline_state.json
+pipeline_state_overnight.json
+pipeline.log
+pipeline_overnight.log
+# 本地评审/探针产物（一次性，不入库）
+review_latest_classified.json
 .DS_Store
