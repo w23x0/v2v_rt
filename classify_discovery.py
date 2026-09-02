@@ -42,6 +42,15 @@ REJECT_TERMS = (
 )
 VOICE_TERMS = ("comms", "team voice", "team comms", "voice comms", "scrim voice")
 FORMAT_TERMS = ("full match", "full game", "ranked", "scrim", "premier", "faceit")
+# 职业选手/战队/官方频道。Phase 1 目标语料是"普通玩家"开黑，因此这类内容直接拒收。
+PRO_TERMS = (
+    "nrg", "sentinels", "fnatic", "faze", "100t", "navi", "sen ",
+    "esp", "oxygen", "s0m", "sinatraa", "zombs", "asuna", "shahzam",
+    "derke", "tenz", "yay", "c9 ", "cloud9", "team flash", "fried",
+    "vct", "champions tour", "masters", "official broadcast", "pro vod",
+    "pro match", "pro player", "radi", "valorant daily", "professional",
+    "esports", "avl", "proguide", "coach", "lets prove",
+)
 
 
 def normalise(value: Any) -> str:
@@ -61,6 +70,9 @@ def classify_video(video: dict[str, Any], game: str) -> dict[str, Any]:
     for term in REJECT_TERMS:
         if term in searchable:
             reasons.append(f"reject_term:{term}")
+    for term in PRO_TERMS:
+        if term in searchable:
+            reasons.append(f"pro_term:{term}")
     if duration and duration < 1200:
         reasons.append("under_20_minutes")
 
@@ -72,6 +84,7 @@ def classify_video(video: dict[str, Any], game: str) -> dict[str, Any]:
     if reasons:
         decision = "reject" if any(
             reason.startswith("reject_term:")
+            or reason.startswith("pro_term:")
             or reason in {"live_or_upcoming", "under_20_minutes"}
             for reason in reasons
         ) else "review"

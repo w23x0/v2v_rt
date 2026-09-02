@@ -34,6 +34,21 @@ class DiscoveryClassificationTests(unittest.TestCase):
         )
         self.assertEqual(result["decision"], "reject")
 
+    def test_rejects_pro_player_or_team_comms(self):
+        result = classify_video(
+            {"id": "e", "title": "NRG VALORANT FULL Voice Comms of the greatest team", "duration": 2400},
+            "valorant",
+        )
+        self.assertEqual(result["decision"], "reject")
+        self.assertTrue(any(reason.startswith("pro_term:") for reason in result["reasons"]))
+
+    def test_accepts_ordinary_player_voice(self):
+        result = classify_video(
+            {"id": "f", "title": "valorant 5 stack with friends team voice full game", "duration": 2200},
+            "valorant",
+        )
+        self.assertEqual(result["decision"], "accept")
+
     def test_deduplicates_video_ids_within_batch(self):
         videos, duplicates = unique_videos(
             [{"id": "same", "title": "first"}, {"id": "same", "title": "second"}],
